@@ -149,11 +149,99 @@ const deleteDoctor = async (req, res) => {
 };
 
 
+/* ---------------- ADD/UPDATE DOCTOR SCHEDULE ---------------- */
+const addOrUpdateSchedule = async (req, res) => {
+  try {
+    const { doctorId, date, slots } = req.body;
 
+    if (!doctorId || !date || !slots || !slots.length) {
+      return res.status(400).json({ message: "doctorId, date and slots are required" });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    // Check if date already exists in schedule
+    const existingDay = doctor.schedule.find(d => d.date.toISOString().slice(0,10) === new Date(date).toISOString().slice(0,10));
+    if (existingDay) {
+      // Update slots for existing day
+      existingDay.slots = slots;
+    } else {
+      // Add new day with slots
+      doctor.schedule.push({ date, slots });
+    }
+
+    await doctor.save();
+    res.json({ message: "Schedule saved successfully", schedule: doctor.schedule });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/* ---------------- GET DOCTOR SCHEDULE ---------------- */
+const getDoctorSchedule = async (req, res) => {
+  try {
+    const { doctorId } = req.params;
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    res.json({
+      doctorId: doctor._id,
+      name: doctor.name,
+      email: doctor.email,
+      schedule: doctor.schedule
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+/* ---------------- BOOK SLOT ---------------- */
+const bookSlotById = async (req, res) => {
+  try {
+    const { doctorId, slotId } = req.body;
+
+    if (!doctorId || !slotId) {
+      return res.status(400).json({ message: "doctorId and slotId are required" });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    let slotFound = false;
+
+    // Iterate through schedule to find the slot
+    for (let day of doctor.schedule) {
+      let slot = day.slots.id(slotId); // Mongoose allows subdocument find by id
+      if (slot) {
+        if (slot.isBooked) {
+          return res.status(400).json({ message: "Slot already booked" });
+        }
+        slot.isBooked = true;
+        slotFound = true;
+        break;
+      }
+    }
+
+    if (!slotFound) {
+      return res.status(404).json({ message: "Slot not found" });
+    }
+
+    await doctor.save();
+    res.json({ message: "Slot booked successfully", doctor });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
     addDoctor,
     getAllDoctors,
     updateDoctor,
     deleteDoctor,
+    addOrUpdateSchedule,
+    getDoctorSchedule,
+    deleteScheduleDay,
+    bookSlotById
 }

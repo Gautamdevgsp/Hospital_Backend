@@ -7,4 +7,5 @@ const receptionistSchema = new mongoose.Schema({
   phone: String
 });
 
-module.exports = mongoose.model("Receptionist", receptionistSchema);
+const Receptionist = mongoose.models.Receptionist || mongoose.model("Receptionist", receptionistSchema);
+module.exports = Receptionist;
