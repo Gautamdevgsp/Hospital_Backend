@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../user/userModel");
 const Schedule = require("../schedule/ScheduleModel");
-
+const Appointment = require("../appointment/AppointmentModel");
 
 const addDoctor = async (req, res) => {
   try {
@@ -334,6 +334,56 @@ const bookSlotById = async (req, res) => {
   }
 };
 
+const doctorDashboard = async (req, res) => {
+  try {
+
+    const { doctor_id } = req.body;
+
+    if (!doctor_id) {
+      return res.status(400).json({
+        message: "doctor_id is required"
+      });
+    }
+
+    const totalAppointments = await Appointment.countDocuments({
+      doctor_id
+    });
+
+    const pendingAppointments = await Appointment.countDocuments({
+      doctor_id,
+      status: "Pending"
+    });
+
+    const completedAppointments = await Appointment.countDocuments({
+      doctor_id,
+      status: "Completed"
+    });
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const todayAppointments = await Appointment.countDocuments({
+      doctor_id,
+      appointment_date: { $gte: today }
+    });
+
+    res.status(200).json({
+      message: "Doctor dashboard data fetched",
+      dashboard: {
+        totalAppointments,
+        pendingAppointments,
+        completedAppointments,
+        todayAppointments
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   addDoctor,
   getAllDoctors,
@@ -343,4 +393,5 @@ module.exports = {
   getDoctorSchedule,
   // deleteScheduleDay,
   bookSlotById,
+  doctorDashboard
 };

@@ -5,7 +5,7 @@ const router = express.Router();
 
 const DoctorController = require("../apis/doctor/DoctorController");
 
-
+router.post("/doctor-dashboard", DoctorController.doctorDashboard);
 router.post("/add-doctor",DoctorController.addDoctor);
 router.post("/doctors",DoctorController.getAllDoctors);
 router.post("/updateDoctor",DoctorController.updateDoctor);

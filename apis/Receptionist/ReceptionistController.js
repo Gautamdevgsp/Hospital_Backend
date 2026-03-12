@@ -2,7 +2,7 @@
 const Receptionist = require("../Receptionist/ReceptionistModel");
 const bcrypt = require("bcrypt");
 const User = require("../user/userModel");
-
+const Patient = require("../patient/PatientModel");
 const Appointment = require("../appointment/AppointmentModel");
 
 
@@ -171,10 +171,45 @@ const bookAppointment = async (req, res) => {
   }
 };
 
+const receptionistDashboard = async (req, res) => {
+  try {
+
+    const totalPatients = await Patient.countDocuments();
+
+    const totalAppointments = await Appointment.countDocuments();
+
+    const pendingAppointments = await Appointment.countDocuments({
+      status: "Pending"
+    });
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const todayBookings = await Appointment.countDocuments({
+      appointment_date: { $gte: today }
+    });
+
+    res.status(200).json({
+      message: "Receptionist dashboard data fetched",
+      dashboard: {
+        totalPatients,
+        totalAppointments,
+        pendingAppointments,
+        todayBookings
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   addReceptionist,
   getReceptionists,
   deleteReceptionist,
-  bookAppointment
+  bookAppointment,
+  receptionistDashboard
 }
