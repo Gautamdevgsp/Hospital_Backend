@@ -1,21 +1,13 @@
 // /apis/auth/authRoutes.js
 const express = require("express");
 const router = express.Router();
-const authController = require("../apis/auth/authController");
+// const authController = require("../apis/auth/authController");
+const verifyToken = require("../middleware/verifytoken")
 
-// Admin
-// router.post("/login/admin", authController.loginAdmin);
+const { loginUser, changePassword } = require("../apis/user/userController")
 
-// Doctor
-router.post("/login/doctor", authController.loginDoctor);
 
-// Receptionist
-router.post("/login/receptionist", authController.loginReceptionist);
-
-// Patient
-router.post("/login/patient", authController.loginPatient);
-
-router.post("/register/receptionist", authController.registerReceptionist);
-router.post("/register/patient", authController.registerPatient);
+router.post("/login", loginUser)
+router.post("/changepassword",  verifyToken, changePassword)
 
 module.exports = router;

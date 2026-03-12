@@ -16,12 +16,14 @@ const AppointmentRoutes = require("./routes/AppointmentRoutes");
 const receptionistRoutes = require("./routes/ReceptionistRoutes");
 const doctorRoutes = require("./routes/DoctorRoutes");
 const authRoutes = require("./routes/AuthRoutes");
+const scheduleRoutes = require("./routes/ScheduleRoutes");
 
 app.use("/api/patient", patientRoutes);
 app.use("/api/appointment", AppointmentRoutes);
 app.use("/api/recp", receptionistRoutes);
 app.use("/api/doctor", doctorRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/schedule",scheduleRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hospital Backend Running");

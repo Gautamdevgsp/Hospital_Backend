@@ -1,9 +1,20 @@
 const mongoose = require("mongoose");
 
-const appointmentSchema = new mongoose.Schema({
+const appointmentSchema = new mongoose.Schema(
+{
+  appointmentId: {
+    type: String,
+    unique: true
+  },
+
   patient_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Patient",
+    required: true
+  },
+
+  patientCustomId: {
+    type: String,
     required: true
   },
 
@@ -13,29 +24,48 @@ const appointmentSchema = new mongoose.Schema({
     required: true
   },
 
-  disease: {
+  doctorCustomId: {
     type: String,
     required: true
   },
-  
-  appointment_created_at: {
-    type: Date,
-    default: Date.now   // automatically stores real-time date & time
+
+  receptionist_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Receptionist"
+  },
+
+  receptionistCustomId: {
+    type: String
+  },
+
+  symptoms: {
+    type: String,
+    required: true
   },
 
   appointment_date: {
-    type: Date
+    type: Date,
+    required: true
+  },
+
+  appointment_time: {
+    type: String,
+    required: true
   },
 
   status: {
     type: String,
-    enum: ["Pending", "Approved", "Rejected", "Completed"],
+    enum: ["Pending", "Approved", "Rejected", "Completed", "Cancelled"],
     default: "Pending"
   },
 
   diagnosis: String,
 
-  prescription: String
-});
+  prescription: String,
+
+  notes: String
+},
+{ timestamps: true }
+);
 
 module.exports = mongoose.model("Appointment", appointmentSchema);
